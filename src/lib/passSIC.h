@@ -43,6 +43,13 @@ void pass1(program *p) //LOC
 			}
         else if(isStrEq(s, "RESW")) LOCCTR += 3 * strInt(t);
         else if(isStrEq(s, "RESB")) LOCCTR += strInt(t);
+        else if(isStrEq(s, "WORD"))
+        {
+            short commas = 1;
+            for(short i = 0; t[i] != '\0'; i++)
+                if(t[i] == ',') commas++;
+            LOCCTR += 3 * commas;
+        }
         else LOCCTR += 3;
     }
     return;
@@ -77,7 +84,16 @@ void pass2(program *p) //generate object code
         else if(isStrEq(s, "RESW"));
         else if(isStrEq(s, "RESB"));
         else if(isStrEq(s, "WORD"))
-            sprintf(r, "%06X", strInt(t));
+        {
+            char tt[sSIZE], rr[sSIZE];
+            strcpy(tt, t);
+
+            for(char *token = strtok(tt, ","); token; token = strtok(NULL, ","))
+            {
+                sprintf(rr, "%06X", strInt(token));
+                strcat(r, rr);
+            }
+        }
         else
         {
             strcpy(a, t);
@@ -91,10 +107,12 @@ void pass2(program *p) //generate object code
 
 void genHTE(program *p) //generate HTE Record
 {
-    operation *s = &p->op[0]; // may cause problemsm
+    operation *s = p->op;
     char tBuffer[tBufferSIZE], out[tBufferSIZE];
     short pSTART = s->loc, pLENGTH = (s + p->len - 1)->loc - pSTART,
           tBufferLoc = pSTART, tBufferLen = 0, l;
+
+    memset(tBuffer, 0, sizeof tBuffer);
 
     sprintf(out, "H^%-6s^%06X", s->label, pLENGTH);
     printf("%s\n", out);

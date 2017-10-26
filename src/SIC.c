@@ -58,8 +58,8 @@ int main()
     // parseSRC(&p, "../test/inSIC.txt");
 
     // printSymbolTable(&p);
-    // printPObject(&p);
-     printRecord(&p);
+    printPObject(&p);
+     // printRecord(&p);
 
 
 
